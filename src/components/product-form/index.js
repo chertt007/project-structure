@@ -244,11 +244,11 @@ export default class ProductForm {
   }
 
   dispatchEvent(id) {
-    console.log('dispatching')
+
     const event = this.productId
       ? new CustomEvent('product-updated', {detail: id,bubbles:true})
-      : new CustomEvent('product-saved',{bubbles:true});
-    console.log(event)
+      : new CustomEvent('product-saved',{detail: id,bubbles:true});
+
     this.element.dispatchEvent(event);
   }
 

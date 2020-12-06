@@ -152,7 +152,14 @@ export default class SortableTable {
     return data;
   }
 
+  updateForProductsPage(data){
+    const rows = document.createElement('div');
 
+    this.data = data;
+    rows.innerHTML = this.getTableRows(data);
+    this.subElements.body.innerHTML = ``;
+    this.subElements.body.append(...rows.childNodes);
+  }
 
   update(data) {
     const rows = document.createElement('div');

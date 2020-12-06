@@ -1,5 +1,6 @@
 import ProductForm from "../../../components/product-form";
 import NotificationMessage from "../../../components/notification/notificator";
+import Router from "../../../router";
 
 export default class Page {
   element;
@@ -12,13 +13,31 @@ export default class Page {
     document.addEventListener('product-saved', this.onProductSaved);
   }
   onProductSaved = event => {
-    console.log('saved')
+    //TODO сохранить айди
+    const form = this.element.querySelector('.form-grid');
+    const productId = form.title.value;
+    //TODO показать уведомление
+    this.showNotification('Товар сохранен','success' );
+    //TODO перейти на страницу редактирования и передать логин в адресную строку для запроса
+    Router.instance().navigate(`/products/${productId}`,{prevUrl: window.location.href});
   }
   onProductUpdated = event => {
-    console.log('updated')
-
+    this.showNotification('Товар отредактирован','success' );
+  }
+  showNotification = (message,type) => {
+    const notificator = new NotificationMessage(message,
+      {duration:2000,type:type});
+    notificator.show();
+    const contentBopx = this.element.querySelector('.content-box');
+    const form = this.element.querySelector('.form-grid');
+    const btnSaveCroods = form.save.getBoundingClientRect();
+    notificator.element.style.position = `fixed`;
+    notificator.element.style.top = btnSaveCroods.y -30 + `px`;
+    notificator.element.style.right =150 + `px`;
+    contentBopx.append(notificator.element)
   }
   async render() {
+    this.initEventListeners();
     const element = document.createElement('div');
 
     //TODO посмотреть текущий адрес строки и сохранить null или id in productId
@@ -26,6 +45,15 @@ export default class Page {
 
     //TODO создать форму. Если в хреф есть содержимое то вставить в конструктор
     const productForm = productId ? new ProductForm(productId) : new ProductForm();
+    //TODO придумать как выводить уведомление об успешном добавлении товара по человечески
+  /*  if(window.history.state){
+      const pathFromWhere = window.history.state.split('/')
+      const pathFromWhereForCheck = pathFromWhere[pathFromWhere.length-1];
+      if(pathFromWhereForCheck === 'add'){
+        this.showNotification('товар успешно сохранен','success');
+      }
+
+    }*/
 
 
     //TODO сохранить форму в this.components.productForm;
@@ -68,5 +96,8 @@ export default class Page {
     return productId;
   }
   remove(){}
-  destroy(){}
+  destroy(){
+    document.removeEventListener('product-updated', this.onProductUpdated);
+    document.removeEventListener('product-saved', this.onProductSaved);
+  }
 }

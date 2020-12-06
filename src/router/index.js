@@ -63,8 +63,8 @@ export default class Router {
     return await renderPage(path, match);
   }
 
-  navigate (path) {
-    history.pushState(null, null, path);
+  navigate (path, data) {
+    history.pushState(data, null, path);
     this.route();
   }
 
