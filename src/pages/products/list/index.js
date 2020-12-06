@@ -1,36 +1,92 @@
-import ProductForm from "../../../components/product-form";
-
+//import ProductForm from "../../../components/product-form";
+import SortableTable from "../../../components/sortable-table";
+import headerpPoducts from "./products-list-header";
+import Router from "../../../router";
 export default class Page {
   element;
   subElements = {};
   components = {};
 
+
+
+  initEvenListeners (){
+    document.addEventListener('click' , this.onItemClick)
+  }
+
+  onItemClick = event => {
+    if(event.target.closest('[data-sortable]')){
+      return ;
+    }
+
+    if(event.target.closest('.sortable-table__row')){
+      const row = event.target.closest('.sortable-table__row')
+      if(row.dataset.id){
+        Router.instance().navigate(`/products/${row.dataset.id}`);
+      }
+    }
+  }
+
   async render() {
     const element = document.createElement('div');
 
-    element.innerHTML = `
-      <div>
-        <h1>List page</h1>
-      </div>`;
-
+    element.innerHTML = this.getTemplate();
     this.element = element.firstElementChild;
 
-    this.initComponents();
-    await this.renderComponents();
+    //TODO создание sortableTable и первоначальный запрос
+    const sortableTable = new SortableTable(headerpPoducts, {
+      url: `api/rest/products?_embed=subcategory.category&_sort=title&_order=asc&_start=0&_end=30}`,
+      isSortLocally: false
+    });
 
+    console.log(sortableTable.element)
+    this.element.append(sortableTable.element);
+    this.components ={
+      sortableTable
+    }
+
+    this.initEvenListeners()
     return this.element;
   }
 
-  initComponents() {
-    const productId = '101-planset-lenovo-yt3-x90l-64-gb-3g-lte-cernyj';
+  getTemplate() {
+    return `
+     <div class="products-list">
+      <div class="content__top-panel">
+        <h1 class="page-title">Товары</h1>
+        <a href="/products/add" class="button-primary">Добавить товар</a>
+      </div>
+      <div class="content-box content-box_small">
+        <form class="form-inline">
+          <div class="form-group">
+            <label class="form-label">Сортировать по:</label>
+            <input type="text" data-elem="filterName" class="form-control" placeholder="Название товара">
+          </div>
+          <div class="form-group" data-elem="sliderContainer">
+            <label class="form-label">Цена:</label>
+          <div class="range-slider">
+      <span data-elem="from">$0</span>
+      <div data-elem="inner" class="range-slider__inner">
+        <span data-elem="progress" class="range-slider__progress" style="left: 0%; right: 0%;"></span>
+        <span data-elem="thumbLeft" class="range-slider__thumb-left" style="left: 0%;"></span>
+        <span data-elem="thumbRight" class="range-slider__thumb-right" style="right: 0%;"></span>
+      </div>
+      <span data-elem="to">$4000</span>
+    </div></div>
+          <div class="form-group">
+            <label class="form-label">Статус:</label>
+            <select class="form-control" data-elem="filterStatus">
+              <option value="" selected="">Любой</option>
+              <option value="1">Активный</option>
+              <option value="0">Неактивный</option>
+            </select>
+          </div>
+        </form>
 
-    this.components.productFrom = new ProductForm(productId);
+      </div>
+    </div>`
   }
 
-  async renderComponents() {
-    const element = await this.components.productFrom.render();
-
-    this.element.append(element);
+  remove() {
   }
 
   destroy() {
