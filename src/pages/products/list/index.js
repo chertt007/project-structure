@@ -18,18 +18,17 @@ export default class Page {
 
   }
   onFilterInput = async (e) =>{
-    console.log(e.target.value)
+    this.nameFilter = e.target.value
     const url = new URL(`https://course-js.javascript.ru/api/rest/products`);
     url.searchParams.set('_embed', 'subcategory.category');
-    url.searchParams.set('price_gte', '0');
-    url.searchParams.set('price_lte', '4000');
-    url.searchParams.set('title_like', `${e.target.value}`);
+    url.searchParams.set('price_gte', this.priceStartFilter ? this.priceStartFilter : '0');
+    url.searchParams.set('price_lte', this.priceEndFilter ? this.priceEndFilter : '4000');
+    url.searchParams.set('title_like', `${this.nameFilter}`);
     url.searchParams.set('_sort', 'title');
     url.searchParams.set('_order', 'asc');
     url.searchParams.set('_start', '0');
     url.searchParams.set('_end', '30');
     const data = await fetchJson(url);
-    console.log(data);
     this.components.sortableTable.updateForProductsPage(data);
 
   }
