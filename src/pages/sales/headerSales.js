@@ -17,6 +17,13 @@ const headerSales = [
     id: 'createdAt',
     title: 'Date',
     sortable: true,
+    template: data => {
+      const newDate = new Date(data);
+      const string = newDate.toLocaleDateString();
+      return `<div class="sortable-table__cell">
+          ${string}
+        </div>`;
+    },
     sortType: 'number'
   },
   {

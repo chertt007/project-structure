@@ -11,6 +11,7 @@ export default class Page {
   initEventListeners(){
     document.addEventListener('product-updated', this.onProductUpdated);
     document.addEventListener('product-saved', this.onProductSaved);
+
   }
   onProductSaved = event => {
     //TODO сохранить айди
@@ -37,6 +38,7 @@ export default class Page {
     contentBopx.append(notificator.element)
   }
   async render() {
+
     this.initEventListeners();
     const element = document.createElement('div');
 

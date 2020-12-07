@@ -20,7 +20,6 @@ export default class Page {
   async updateTableComponent (from, to) {
     const data = await fetchJson(`https://course-js.javascript.ru/api/rest/orders?createdAt_gte=${from.toISOString()}&createdAt_lte=${to.toISOString()}&_sort=createdAt&_order=desc&_start=0&_end=30
   `);
-    console.log(data)
     this.components.sortableTable.addRows(data);
   }
   async render(){
@@ -39,7 +38,7 @@ export default class Page {
 
       const sortableTable  = await new SortableTable(headerSales, {
       url: `api/rest/orders?createdAt_gte=${PREV_MONTH.toISOString()}&createdAt_lte=${TODAY.toISOString()}&_sort=createdAt&_order=desc&_start=0&_end=30`,
-      isSortLocally: false
+      isSortLocally: true
     });
 
     //TODO заапендить сорт тейбл

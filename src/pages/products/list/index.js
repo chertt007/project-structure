@@ -16,11 +16,11 @@ export default class Page {
 
     const input = this.element.querySelector('.form-label').nextElementSibling;
     input.addEventListener('input',this.onFilterInput);
-    document.addEventListener('pointerup', this.onSliderPointerUp);
+   // document.addEventListener('pointerup', this.onSliderPointerUp);
 
     const select = this.element.querySelector('.form-inline').lastElementChild.lastElementChild;
     select.addEventListener('change', this.onStatusChange)
-
+    document.addEventListener('range-select', this.onSliderPointerUp)
   }
   rerenderPage(data){
     if(!data.length){
@@ -39,18 +39,10 @@ export default class Page {
   }
   onSliderPointerUp = async (e) => {
 
-    if(!e.target.closest('.range-slider__inner')){
-      return;
-    }
-    const sliderElement = this.element.querySelector('.range-slider');
-    const leftSpanValue = sliderElement.firstElementChild.innerHTML;
-    this.priceStartFilter = this.remove$Sign(leftSpanValue);
-    //this.priceStartFilter = this.components.doubleSlider.min;
-    const rightSpanValue = sliderElement.lastElementChild.innerHTML;
-    this.priceEndFilter = this.remove$Sign(rightSpanValue);
-   // this.priceEndFilter = this.components.doubleSlider.max;
-    const data =  await this.updateDataAfterFiltersChanges();
-    this.rerenderPage(data);
+    this.priceStartFilter = e.detail.from;
+      this.priceEndFilter = e.detail.to;
+      const data =  await this.updateDataAfterFiltersChanges();
+      this.rerenderPage(data);
   }
 
   onFilterInput = async (e) =>{
@@ -103,7 +95,6 @@ _end: 30
     emptyPlaceHolder.innerHTML =``;
   }
   renderNoSearchResult = () => {
-    console.log('нет данных для рендеринга')
     const sortTable = this.element.querySelector('.sortable-table');
     sortTable.className='sortable-table sortable-table_empty';
     const emptyPlaceHolder = this.element.querySelector('.sortable-table__empty-placeholder');
@@ -112,10 +103,8 @@ _end: 30
       <button  type="button" class="button-primary-outline">Очистить фильтры</button>
     </div>`
     const btn = emptyPlaceHolder.lastElementChild.lastElementChild;
-    console.log(btn);
 
     btn.addEventListener('click', async (e)=>{
-      console.log('нажата кнопка сбросить фильтры')
       this.status = null;
       this.priceStartFilter = 0;
       this.priceEndFilter = 4000;
@@ -131,8 +120,6 @@ _end: 30
       //TODO сделать новый запрос
       const newurl = this.configUrl();
       const data = await fetchJson(newurl);
-      console.log('новые данные')
-      console.log(data)
       emptyPlaceHolder.innerHTML = ``;
       sortTable.className = 'sortable-table';
       this.components.sortableTable.updateForProductsPage(data);
