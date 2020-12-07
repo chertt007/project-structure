@@ -18,12 +18,20 @@ export default class Page {
     const form = this.element.querySelector('.form-grid');
     const productId = form.title.value;
     //TODO показать уведомление
-    this.showNotification('Товар сохранен','success' );
     //TODO перейти на страницу редактирования и передать логин в адресную строку для запроса
     Router.instance().navigate(`/products/${productId}`,{prevUrl: window.location.href});
   }
   onProductUpdated = event => {
-    this.showNotification('Товар отредактирован','success' );
+   // this.showNotification('Товар отредактирован','success' );
+    const notificator = new NotificationMessage('товар сохранен',{duration:2000,type:'success'});
+    notificator.show();
+    const contentBopx = this.element.querySelector('.content-box');
+    const form = this.element.querySelector('.form-grid');
+    const btnSaveCroods = form.save.getBoundingClientRect();
+    notificator.element.style.position = `relative`;
+    notificator.element.style.top = btnSaveCroods.y -730 + `px`;
+    notificator.element.style.right =1 + `px`;g
+    contentBopx.append(notificator.element);
   }
   showNotification = (message,type) => {
     const notificator = new NotificationMessage(message,
@@ -38,6 +46,7 @@ export default class Page {
     contentBopx.append(notificator.element)
   }
   async render() {
+
 
     this.initEventListeners();
     const element = document.createElement('div');
@@ -68,10 +77,28 @@ export default class Page {
     element.innerHTML = this.getTemplate();
     this.element = element.firstElementChild;
 
+
+
     //TODO в  <div class="content-box"> добавить форму asyncr Form.render()
     const contentBox = this.element.querySelector('.content-box');
     const renderedForm = await this.components.productForm.render();
     contentBox.append(renderedForm);
+    if(history.state){
+      const prevUrl = history.state.prevUrl.split('/');
+      const lastPart = prevUrl[prevUrl.length-1];
+      if(lastPart === 'add'){
+        const notificator = new NotificationMessage('товар сохранен',{duration:2000,type:'success'});
+        notificator.show();
+        const contentBopx = this.element.querySelector('.content-box');
+        const form = this.element.querySelector('.form-grid');
+        const btnSaveCroods = form.save.getBoundingClientRect();
+        notificator.element.style.position = `relative`;
+        notificator.element.style.top = btnSaveCroods.y  + `px`;
+        notificator.element.style.right =1 + `px`;
+        contentBopx.append(notificator.element);
+
+      }
+    }
     const elem = document.createElement('div');
 
     return this.element;
