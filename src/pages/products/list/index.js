@@ -23,8 +23,16 @@ export default class Page {
 
   }
   onStatusChange = async (e) =>{
+    //this.prepareTemplateForNewRequest();
     this.status = e.target.value;
-    await this.updateTableAfterFiltersChanges();
+    const data = await this.updateDataAfterFiltersChanges();
+    if(!data.length){
+      this.renderNoSearchResult();
+    }else {
+      this.prepareTemplateForNewRequest();
+      this.components.sortableTable.updateForProductsPage(data);
+    }
+
   }
   onSliderPointerUp = async (e) => {
 
@@ -34,17 +42,31 @@ export default class Page {
     const sliderElement = this.element.querySelector('.range-slider');
     const leftSpanValue = sliderElement.firstElementChild.innerHTML;
     this.priceStartFilter = this.remove$Sign(leftSpanValue);
+    //this.priceStartFilter = this.components.doubleSlider.min;
     const rightSpanValue = sliderElement.lastElementChild.innerHTML;
     this.priceEndFilter = this.remove$Sign(rightSpanValue);
-    const data =  await this.updateTableAfterFiltersChanges();
-    this.components.sortableTable.updateForProductsPage(data);
+   // this.priceEndFilter = this.components.doubleSlider.max;
+    const data =  await this.updateDataAfterFiltersChanges();
+    if(!data.length){
+      this.renderNoSearchResult();
+    }else {
+      this.prepareTemplateForNewRequest();
+      this.components.sortableTable.updateForProductsPage(data);
+    }
   }
 
   onFilterInput = async (e) =>{
+   // this.prepareTemplateForNewRequest();
     this.nameFilter = e.target.value
-    const data =  await this.updateTableAfterFiltersChanges();
-    this.components.sortableTable.updateForProductsPage(data)
-  /*
+    const data =  await this.updateDataAfterFiltersChanges();
+    if(!data.length){
+      this.renderNoSearchResult();
+    }else {
+      this.prepareTemplateForNewRequest();
+      this.components.sortableTable.updateForProductsPage(data);
+    }
+  //TODO пример полного запроса на сервер
+    /*
   _embed: subcategory.category
 price_gte: 85
 price_lte: 4000
@@ -64,72 +86,72 @@ _end: 30
     }
     return result.join('');
   }
-   updateTableAfterFiltersChanges = async () =>{
-     const url = new URL(`https://course-js.javascript.ru/api/rest/products`);
-     url.searchParams.set('_embed', 'subcategory.category');
-     url.searchParams.set('price_gte', this.priceStartFilter ? this.priceStartFilter : '0');
-     url.searchParams.set('price_lte', this.priceEndFilter ? this.priceEndFilter : '4000');
-     if(this.nameFilter){
-       url.searchParams.set('title_like', this.nameFilter);
-     }
-     url.searchParams.set('_sort', 'title');
-     if(this.status){
-       url.searchParams.set('status', this.status);
-     }
-     url.searchParams.set('_order', 'asc');
-     url.searchParams.set('_start', '0');
-     url.searchParams.set('_end', '30');
-     const data = await fetchJson(url);
-     if(!data.length){
-       const sortTable = this.element.querySelector('.sortable-table');
-       sortTable.className='sortable-table sortable-table_empty';
-
-
-       /*
-       <div>
-      <p>Не найдено товаров удовлетворяющих выбранному критерию</p>
-      <button type="button" class="button-primary-outline">Очистить фильтры</button>
-    </div>
-        */
-       const emptyPlaceHolder = this.element.querySelector('.sortable-table__empty-placeholder');
-       emptyPlaceHolder.innerHTML = `<div>
+  configUrl = () => {
+    const url = new URL(`https://course-js.javascript.ru/api/rest/products`);
+    url.searchParams.set('_embed', 'subcategory.category');
+    url.searchParams.set('price_gte', this.priceStartFilter ? this.priceStartFilter : '0');
+    url.searchParams.set('price_lte', this.priceEndFilter ? this.priceEndFilter : '4000');
+    if(this.nameFilter){
+      url.searchParams.set('title_like', this.nameFilter);
+    }
+    url.searchParams.set('_sort', 'title');
+    if(this.status){
+      url.searchParams.set('status', this.status);
+    }
+    url.searchParams.set('_order', 'asc');
+    url.searchParams.set('_start', '0');
+    url.searchParams.set('_end', '30');
+    return url;
+}
+  prepareTemplateForNewRequest = () => {
+    const sortTable = this.element.querySelector('.sortable-table');
+    sortTable.className='sortable-table';
+    const emptyPlaceHolder = this.element.querySelector('.sortable-table__empty-placeholder');
+    emptyPlaceHolder.innerHTML =``;
+  }
+  renderNoSearchResult = () => {
+    console.log('нет данных для рендеринга')
+    const sortTable = this.element.querySelector('.sortable-table');
+    sortTable.className='sortable-table sortable-table_empty';
+    const emptyPlaceHolder = this.element.querySelector('.sortable-table__empty-placeholder');
+    emptyPlaceHolder.innerHTML = `<div>
       <p>Не найдено товаров удовлетворяющих выбранному критерию</p>
       <button  type="button" class="button-primary-outline">Очистить фильтры</button>
     </div>`
+    const btn = emptyPlaceHolder.lastElementChild.lastElementChild;
+    console.log(btn);
 
-       const btn = emptyPlaceHolder.lastElementChild.lastElementChild;
-       btn.addEventListener('click', async (e)=>{
-         this.status = null;
-         this.priceStartFilter = 0;
-         this.priceEndFilter = 4000;
-         this.nameFilter= null;
-         //Todo сбросить фильтер , спаны, и статус вылью
-         const input = this.element.querySelector('.form-label').nextElementSibling.value = ``;
-         const sliderElement = this.element.querySelector('.range-slider');
-         const leftSpanValue = sliderElement.firstElementChild.innerHTML=`$0`;
-         const rightSpanValue = sliderElement.lastElementChild.innerHTML=`$4000`;
-         this.components.doubleSlider.max = 4000;
-         this.components.doubleSlider.min = 0;
-         this.components.doubleSlider.update();
-        //TODO сделать новый запрос
-         const newurl = new URL(`https://course-js.javascript.ru/api/rest/products`);
-         url.searchParams.set('_embed', 'subcategory.category');
-         url.searchParams.set('price_gte',  '0');
-         url.searchParams.set('price_lte', '4000');
-         url.searchParams.set('_sort', 'title');
-         url.searchParams.set('_order', 'asc');
-         url.searchParams.set('_start', '0');
-         url.searchParams.set('_end', '30');
-         const data = await fetchJson(newurl);
-         emptyPlaceHolder.innerHTML = ``;
-         sortTable.className = 'sortable-table';
-         this.components.sortableTable.updateForProductsPage(data);
+    btn.addEventListener('click', async (e)=>{
+      console.log('нажата кнопка сбросить фильтры')
+      this.status = null;
+      this.priceStartFilter = 0;
+      this.priceEndFilter = 4000;
+      this.nameFilter= null;
+      //Todo сбросить фильтер , спаны, и статус вылью
+      const input = this.element.querySelector('.form-label').nextElementSibling.value = ``;
+      const sliderElement = this.element.querySelector('.range-slider');
+      const leftSpanValue = sliderElement.firstElementChild.innerHTML=`$0`;
+      const rightSpanValue = sliderElement.lastElementChild.innerHTML=`$4000`;
+      this.components.doubleSlider.max = 4000;
+      this.components.doubleSlider.min = 0;
+      this.components.doubleSlider.update();
+      //TODO сделать новый запрос
+      const newurl = this.configUrl();
+      const data = await fetchJson(newurl);
+      console.log('новые данные')
+      console.log(data)
+      emptyPlaceHolder.innerHTML = ``;
+      sortTable.className = 'sortable-table';
+      this.components.sortableTable.updateForProductsPage(data);
 
-       });
+    });
 
-     }else {
-       this.components.sortableTable.updateForProductsPage(data);
-     }
+  }
+
+   updateDataAfterFiltersChanges = async () =>{
+     const url = this.configUrl();
+     const data = await fetchJson(url);
+     return data;
 
   }
 
