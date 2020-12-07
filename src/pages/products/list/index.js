@@ -22,16 +22,19 @@ export default class Page {
     select.addEventListener('change', this.onStatusChange)
 
   }
-  onStatusChange = async (e) =>{
-    //this.prepareTemplateForNewRequest();
-    this.status = e.target.value;
-    const data = await this.updateDataAfterFiltersChanges();
+  rerenderPage(data){
     if(!data.length){
       this.renderNoSearchResult();
     }else {
       this.prepareTemplateForNewRequest();
       this.components.sortableTable.updateForProductsPage(data);
     }
+  }
+  onStatusChange = async (e) =>{
+    //this.prepareTemplateForNewRequest();
+    this.status = e.target.value;
+    const data = await this.updateDataAfterFiltersChanges();
+    this.rerenderPage(data);
 
   }
   onSliderPointerUp = async (e) => {
@@ -47,24 +50,14 @@ export default class Page {
     this.priceEndFilter = this.remove$Sign(rightSpanValue);
    // this.priceEndFilter = this.components.doubleSlider.max;
     const data =  await this.updateDataAfterFiltersChanges();
-    if(!data.length){
-      this.renderNoSearchResult();
-    }else {
-      this.prepareTemplateForNewRequest();
-      this.components.sortableTable.updateForProductsPage(data);
-    }
+    this.rerenderPage(data);
   }
 
   onFilterInput = async (e) =>{
    // this.prepareTemplateForNewRequest();
     this.nameFilter = e.target.value
     const data =  await this.updateDataAfterFiltersChanges();
-    if(!data.length){
-      this.renderNoSearchResult();
-    }else {
-      this.prepareTemplateForNewRequest();
-      this.components.sortableTable.updateForProductsPage(data);
-    }
+    this.rerenderPage(data);
   //TODO пример полного запроса на сервер
     /*
   _embed: subcategory.category
@@ -238,6 +231,7 @@ _end: 30
   }
 
   remove() {
+    this.element.remove()
   }
 
   destroy() {

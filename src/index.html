@@ -42,7 +42,7 @@
     <ul class="sidebar__nav sidebar__nav_bottom">
       <li>
       <!-- TODO: implement toggling  -->
-        <button type="button" class="sidebar__toggler">
+        <button id="toggler" type="button" class="sidebar__toggler">
           <i class="icon-toggle-sidebar"></i> <span>Toggle sidebar</span>
         </button>
       </li>
@@ -53,3 +53,9 @@
   </section>
 </main>
 </body>
+<script>
+  toggler.addEventListener('click', (e)=>{
+    const body = document.body;
+    body.classList.toggle('is-collapsed-sidebar');
+  })
+</script>
