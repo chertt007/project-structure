@@ -23,14 +23,9 @@ export default class Page {
   }
   onProductUpdated = event => {
    // this.showNotification('Товар отредактирован','success' );
-    const notificator = new NotificationMessage('товар сохранен',{duration:2000,type:'success'});
+    const notificator = new NotificationMessage('товар отредактирован',{duration:2000,type:'success'});
     notificator.show();
     const contentBopx = this.element.querySelector('.content-box');
-    const form = this.element.querySelector('.form-grid');
-    const btnSaveCroods = form.save.getBoundingClientRect();
-    notificator.element.style.position = `relative`;
-    notificator.element.style.top = btnSaveCroods.y -730 + `px`;
-    notificator.element.style.right =1 + `px`;g
     contentBopx.append(notificator.element);
   }
   showNotification = (message,type) => {

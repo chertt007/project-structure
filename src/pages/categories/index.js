@@ -1,5 +1,6 @@
 import fetchJson from '../../utils/fetch-json'
 import SortableList from "../../components/sortable-list";
+import NotificationMessage from "../../components/notification/notificator";
 export default class Page {
 
   element;
@@ -10,8 +11,28 @@ export default class Page {
   initEventListener(){
     document.addEventListener('sortable-list-reorder', this.onOrderChanged);
   }
+  onOrderChanged = ( event ) => {
+    console.log(this.element);
+    const wrapper = this.element.querySelector('.content__top-panel').nextElementSibling;
+    const croods = wrapper.getBoundingClientRect();
+    console.log(croods.x)
+    console.log(croods.y)
+    console.log( wrapper)
+    const notificator = new NotificationMessage('Категория перемещена',{
+      duration:2000,
+      type:'success'
+    });
+    notificator.show();
+    notificator.element.style.position = 'relative';
+    notificator.element.style.top = croods.y  + 'px';
+    notificator.element.style.left  =croods.x + 'px';
+    wrapper.append(notificator.element);
+
+
+  }
 
   async render(){
+    this.initEventListener();
     const element = document.createElement('div');
 
     element.innerHTML = this.getTemplate();
