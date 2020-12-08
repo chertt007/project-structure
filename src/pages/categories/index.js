@@ -12,12 +12,8 @@ export default class Page {
     document.addEventListener('sortable-list-reorder', this.onOrderChanged);
   }
   onOrderChanged = ( event ) => {
-    console.log(this.element);
     const wrapper = this.element.querySelector('.content__top-panel').nextElementSibling;
     const croods = wrapper.getBoundingClientRect();
-    console.log(croods.x)
-    console.log(croods.y)
-    console.log( wrapper)
     const notificator = new NotificationMessage('Категория перемещена',{
       duration:2000,
       type:'success'
